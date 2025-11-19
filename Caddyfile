@@ -1,0 +1,17 @@
+:90
+
+root * /app/public
+
+php_fastcgi unix//run/php/php-fpm.sock
+
+handle_path /storage/* {
+    file_server
+}
+
+php_auto {
+    env APP_ENV=local
+    env APP_DEBUG=true
+    worker /index.php
+}
+
+file_server

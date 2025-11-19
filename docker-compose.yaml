@@ -1,0 +1,34 @@
+services:
+  ArVR-WebApp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ArVR-WebApp
+    restart: always
+    ports:
+      # - "80:80"
+      - "8082:90" # Port yang akan diakses dari host
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - .:/app
+      #- .:/var/www/html
+      #- ./docker/apache/000-default.conf:/etc/apache2/sites-available/000-default.conf
+    networks:
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      # - "traefik.http.routers.ArVR-WebApp.rule=Host(`pre.fiyansa.com`)"
+      - "traefik.http.routers.ArVR-WebApp.entrypoints=websecure"
+      - "traefik.http.routers.ArVR-WebApp.tls.certresolver=tlsresolver"
+      - "traefik.http.services.ArVR-WebApp.loadbalancer.server.port=90"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:90/"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+networks:
+  traefik:
+    name: traefik_default
+    external: true
